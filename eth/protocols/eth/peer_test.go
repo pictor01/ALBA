@@ -17,15 +17,15 @@
 // This file contains some shares testing functionality, common to  multiple
 // different files and modules being tested.
 
-package eth
+package alba
 
 import (
 	"crypto/rand"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/p2p/enode"
 )
 
 // testPeer is a simulated peer to allow testing direct network calls.
