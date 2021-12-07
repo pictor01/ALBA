@@ -25,12 +25,12 @@ import (
 	"time"
 
 	mapset "github.com/deckarep/golang-set"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/mclock"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/metrics"
 )
 
 const (
@@ -40,8 +40,8 @@ const (
 
 	// maxTxRetrievals is the maximum transaction number can be fetched in one
 	// request. The rationale to pick 256 is:
-	//   - In eth protocol, the softResponseLimit is 2MB. Nowadays according to
-	//     Etherscan the average transaction size is around 200B, so in theory
+	//   - In alba protocol, the softResponseLimit is 2MB. Nowadays according to
+	//     Albascan the average transaction size is around 200B, so in theory
 	//     we can include lots of transaction in a single protocol packet.
 	//   - However the maximum size of a single transaction is raised to 128KB,
 	//     so pick a middle value here to ensure we can maximize the efficiency
