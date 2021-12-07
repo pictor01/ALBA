@@ -46,7 +46,7 @@ var (
 
 func generatePreMergeChain(n int) (*core.Genesis, []*types.Block) {
 	db := rawdb.NewMemoryDatabase()
-	config := params.AllEthashProtocolChanges
+	config := params.AllAlbaashProtocolChanges
 	genesis := &core.Genesis{
 		Config:    config,
 		Alloc:     core.GenesisAlloc{testAddr: {Balance: testBalance}},
@@ -63,7 +63,7 @@ func generatePreMergeChain(n int) (*core.Genesis, []*types.Block) {
 		testNonce++
 	}
 	gblock := genesis.ToBlock(db)
-	engine := ethash.NewFaker()
+	engine := albaash.NewFaker()
 	blocks, _ := core.GenerateChain(config, gblock, engine, db, n, generate)
 	totalDifficulty := big.NewInt(0)
 	for _, b := range blocks {
@@ -73,9 +73,9 @@ func generatePreMergeChain(n int) (*core.Genesis, []*types.Block) {
 	return genesis, blocks
 }
 
-func TestEth2AssembleBlock(t *testing.T) {
+func TestAlba2AssembleBlock(t *testing.T) {
 	genesis, blocks := generatePreMergeChain(10)
-	n, ethservice := startEthService(t, genesis, blocks)
+	n, albaservice := startAlbaService(t, genesis, blocks)
 	defer n.Close()
 
 	api := NewConsensusAPI(ethservice, nil)
@@ -99,7 +99,7 @@ func TestEth2AssembleBlock(t *testing.T) {
 
 func TestEth2AssembleBlockWithAnotherBlocksTxs(t *testing.T) {
 	genesis, blocks := generatePreMergeChain(10)
-	n, ethservice := startEthService(t, genesis, blocks[:9])
+	n, albaservice := startAlbaService(t, genesis, blocks[:9])
 	defer n.Close()
 
 	api := NewConsensusAPI(ethservice, nil)
@@ -120,7 +120,7 @@ func TestEth2AssembleBlockWithAnotherBlocksTxs(t *testing.T) {
 
 func TestSetHeadBeforeTotalDifficulty(t *testing.T) {
 	genesis, blocks := generatePreMergeChain(10)
-	n, ethservice := startEthService(t, genesis, blocks)
+	n, albaservice := startAlbaService(t, genesis, blocks)
 	defer n.Close()
 
 	api := NewConsensusAPI(ethservice, nil)
@@ -134,14 +134,14 @@ func TestSetHeadBeforeTotalDifficulty(t *testing.T) {
 	}
 }
 
-func TestEth2PrepareAndGetPayload(t *testing.T) {
+func TestAlba2PrepareAndGetPayload(t *testing.T) {
 	genesis, blocks := generatePreMergeChain(10)
 	// We need to properly set the terminal total difficulty
 	genesis.Config.TerminalTotalDifficulty.Sub(genesis.Config.TerminalTotalDifficulty, blocks[9].Difficulty())
-	n, ethservice := startEthService(t, genesis, blocks[:9])
+	n, ethservice := startAlbaService(t, genesis, blocks[:9])
 	defer n.Close()
 
-	api := NewConsensusAPI(ethservice, nil)
+	api := NewConsensusAPI(albaservice, nil)
 
 	// Put the 10th block's tx in the pool and produce a new block
 	api.insertTransactions(blocks[9].Transactions())
@@ -185,10 +185,10 @@ func checkLogEvents(t *testing.T, logsCh <-chan []*types.Log, rmLogsCh <-chan co
 	}
 }
 
-func TestEth2NewBlock(t *testing.T) {
+func TestAlba2NewBlock(t *testing.T) {
 	genesis, preMergeBlocks := generatePreMergeChain(10)
-	n, ethservice := startEthService(t, genesis, preMergeBlocks)
-	ethservice.Merger().ReachTTD()
+	n, albaservice := startAlbaService(t, genesis, preMergeBlocks)
+	albaservice.Merger().ReachTTD()
 	defer n.Close()
 
 	var (
@@ -201,14 +201,14 @@ func TestEth2NewBlock(t *testing.T) {
 	// The event channels.
 	newLogCh := make(chan []*types.Log, 10)
 	rmLogsCh := make(chan core.RemovedLogsEvent, 10)
-	ethservice.BlockChain().SubscribeLogsEvent(newLogCh)
-	ethservice.BlockChain().SubscribeRemovedLogsEvent(rmLogsCh)
+	albaservice.BlockChain().SubscribeLogsEvent(newLogCh)
+	albaservice.BlockChain().SubscribeRemovedLogsEvent(rmLogsCh)
 
 	for i := 0; i < 10; i++ {
-		statedb, _ := ethservice.BlockChain().StateAt(parent.Root())
+		statedb, _ := albaservice.BlockChain().StateAt(parent.Root())
 		nonce := statedb.GetNonce(testAddr)
 		tx, _ := types.SignTx(types.NewContractCreation(nonce, new(big.Int), 1000000, big.NewInt(2*params.InitialBaseFee), logCode), types.LatestSigner(ethservice.BlockChain().Config()), testKey)
-		ethservice.TxPool().AddLocal(tx)
+		albaservice.TxPool().AddLocal(tx)
 
 		execData, err := api.assembleBlock(parent.Hash(), &PayloadAttributesV1{
 			Timestamp: parent.Time() + 5,
@@ -224,7 +224,7 @@ func TestEth2NewBlock(t *testing.T) {
 		if err != nil || newResp.Status != "VALID" {
 			t.Fatalf("Failed to insert block: %v", err)
 		}
-		if ethservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64()-1 {
+		if albaservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64()-1 {
 			t.Fatalf("Chain head shouldn't be updated")
 		}
 		checkLogEvents(t, newLogCh, rmLogsCh, 0, 0)
@@ -236,7 +236,7 @@ func TestEth2NewBlock(t *testing.T) {
 		if _, err := api.ForkchoiceUpdatedV1(fcState, nil); err != nil {
 			t.Fatalf("Failed to insert block: %v", err)
 		}
-		if ethservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
+		if albaservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
 			t.Fatalf("Chain head should be updated")
 		}
 		checkLogEvents(t, newLogCh, rmLogsCh, 1, 0)
@@ -246,7 +246,7 @@ func TestEth2NewBlock(t *testing.T) {
 
 	// Introduce fork chain
 	var (
-		head = ethservice.BlockChain().CurrentBlock().NumberU64()
+		head = albaservice.BlockChain().CurrentBlock().NumberU64()
 	)
 	parent = preMergeBlocks[len(preMergeBlocks)-1]
 	for i := 0; i < 10; i++ {
@@ -264,7 +264,7 @@ func TestEth2NewBlock(t *testing.T) {
 		if err != nil || newResp.Status != "VALID" {
 			t.Fatalf("Failed to insert block: %v", err)
 		}
-		if ethservice.BlockChain().CurrentBlock().NumberU64() != head {
+		if albaservice.BlockChain().CurrentBlock().NumberU64() != head {
 			t.Fatalf("Chain head shouldn't be updated")
 		}
 
@@ -276,25 +276,25 @@ func TestEth2NewBlock(t *testing.T) {
 		if _, err := api.ForkchoiceUpdatedV1(fcState, nil); err != nil {
 			t.Fatalf("Failed to insert block: %v", err)
 		}
-		if ethservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
+		if albaservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
 			t.Fatalf("Chain head should be updated")
 		}
 		parent, head = block, block.NumberU64()
 	}
 }
 
-func TestEth2DeepReorg(t *testing.T) {
-	// TODO (MariusVanDerWijden) TestEth2DeepReorg is currently broken, because it tries to reorg
+func TestAlba2DeepReorg(t *testing.T) {
+	// TODO (MariusVanDerWijden) TestAlba2DeepReorg is currently broken, because it tries to reorg
 	// before the totalTerminalDifficulty threshold
 	/*
 		genesis, preMergeBlocks := generatePreMergeChain(core.TriesInMemory * 2)
-		n, ethservice := startEthService(t, genesis, preMergeBlocks)
+		n, ethservice := startAlbaService(t, genesis, preMergeBlocks)
 		defer n.Close()
 
 		var (
-			api    = NewConsensusAPI(ethservice, nil)
+			api    = NewConsensusAPI(albaservice, nil)
 			parent = preMergeBlocks[len(preMergeBlocks)-core.TriesInMemory-1]
-			head   = ethservice.BlockChain().CurrentBlock().NumberU64()
+			head   = albaservice.BlockChain().CurrentBlock().NumberU64()
 		)
 		if ethservice.BlockChain().HasBlockAndState(parent.Hash(), parent.NumberU64()) {
 			t.Errorf("Block %d not pruned", parent.NumberU64())
@@ -315,13 +315,13 @@ func TestEth2DeepReorg(t *testing.T) {
 			if err != nil || newResp.Status != "VALID" {
 				t.Fatalf("Failed to insert block: %v", err)
 			}
-			if ethservice.BlockChain().CurrentBlock().NumberU64() != head {
+			if albaservice.BlockChain().CurrentBlock().NumberU64() != head {
 				t.Fatalf("Chain head shouldn't be updated")
 			}
 			if err := api.setHead(block.Hash()); err != nil {
 				t.Fatalf("Failed to set head: %v", err)
 			}
-			if ethservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
+			if albaservice.BlockChain().CurrentBlock().NumberU64() != block.NumberU64() {
 				t.Fatalf("Chain head should be updated")
 			}
 			parent, head = block, block.NumberU64()
@@ -329,8 +329,8 @@ func TestEth2DeepReorg(t *testing.T) {
 	*/
 }
 
-// startEthService creates a full node instance for testing.
-func startEthService(t *testing.T, genesis *core.Genesis, blocks []*types.Block) (*node.Node, *eth.Ethereum) {
+// startAlbaService creates a full node instance for testing.
+func startAlbaService(t *testing.T, genesis *core.Genesis, blocks []*types.Block) (*node.Node, *eth.Ethereum) {
 	t.Helper()
 
 	n, err := node.New(&node.Config{})
@@ -338,40 +338,40 @@ func startEthService(t *testing.T, genesis *core.Genesis, blocks []*types.Block)
 		t.Fatal("can't create node:", err)
 	}
 
-	ethcfg := &ethconfig.Config{Genesis: genesis, Ethash: ethash.Config{PowMode: ethash.ModeFake}, TrieTimeout: time.Minute, TrieDirtyCache: 256, TrieCleanCache: 256}
-	ethservice, err := eth.New(n, ethcfg)
+	albacfg := &albaconfig.Config{Genesis: genesis, Albaash: albaash.Config{PowMode: albaash.ModeFake}, TrieTimeout: time.Minute, TrieDirtyCache: 256, TrieCleanCache: 256}
+	ethservice, err := alba.New(n, ethcfg)
 	if err != nil {
 		t.Fatal("can't create eth service:", err)
 	}
 	if err := n.Start(); err != nil {
 		t.Fatal("can't start node:", err)
 	}
-	if _, err := ethservice.BlockChain().InsertChain(blocks); err != nil {
+	if _, err := albaservice.BlockChain().InsertChain(blocks); err != nil {
 		n.Close()
 		t.Fatal("can't import test blocks:", err)
 	}
-	ethservice.SetEtherbase(testAddr)
-	ethservice.SetSynced()
+	albaservice.SetAlbabase(testAddr)
+	albaservice.SetSynced()
 
-	return n, ethservice
+	return n, albaservice
 }
 
 func TestFullAPI(t *testing.T) {
 	genesis, preMergeBlocks := generatePreMergeChain(10)
-	n, ethservice := startEthService(t, genesis, preMergeBlocks)
-	ethservice.Merger().ReachTTD()
+	n, albaservice := startAlbaService(t, genesis, preMergeBlocks)
+	albaservice.Merger().ReachTTD()
 	defer n.Close()
 	var (
-		api    = NewConsensusAPI(ethservice, nil)
-		parent = ethservice.BlockChain().CurrentBlock()
+		api    = NewConsensusAPI(albaservice, nil)
+		parent = albaservice.BlockChain().CurrentBlock()
 		// This EVM code generates a log when the contract is created.
 		logCode = common.Hex2Bytes("60606040525b7f24ec1d3ff24c2f6ff210738839dbc339cd45a5294d85c79361016243157aae7b60405180905060405180910390a15b600a8060416000396000f360606040526008565b00")
 	)
 	for i := 0; i < 10; i++ {
-		statedb, _ := ethservice.BlockChain().StateAt(parent.Root())
+		statedb, _ := albaservice.BlockChain().StateAt(parent.Root())
 		nonce := statedb.GetNonce(testAddr)
 		tx, _ := types.SignTx(types.NewContractCreation(nonce, new(big.Int), 1000000, big.NewInt(2*params.InitialBaseFee), logCode), types.LatestSigner(ethservice.BlockChain().Config()), testKey)
-		ethservice.TxPool().AddLocal(tx)
+		albaservice.TxPool().AddLocal(tx)
 
 		params := PayloadAttributesV1{
 			Timestamp:    parent.Time() + 1,
@@ -410,10 +410,10 @@ func TestFullAPI(t *testing.T) {
 		if _, err := api.ForkchoiceUpdatedV1(fcState, nil); err != nil {
 			t.Fatalf("Failed to insert block: %v", err)
 		}
-		if ethservice.BlockChain().CurrentBlock().NumberU64() != payload.Number {
+		if albaservice.BlockChain().CurrentBlock().NumberU64() != payload.Number {
 			t.Fatalf("Chain head should be updated")
 		}
-		parent = ethservice.BlockChain().CurrentBlock()
+		parent = albaservice.BlockChain().CurrentBlock()
 
 	}
 }
