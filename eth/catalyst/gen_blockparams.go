@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/hexutil"
 )
 
 var _ = (*payloadAttributesMarshaling)(nil)
