@@ -7,8 +7,8 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/hexutil"
 )
 
 var _ = (*executableDataMarshaling)(nil)
