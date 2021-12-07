@@ -23,14 +23,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA"
+	"github.com/pictor01/ALBA/accounts/abi"
+	"github.com/pictor01/ALBA/accounts/abi/bind"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/hexutil"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/rlp"
 	"github.com/stretchr/testify/assert"
 )
 
