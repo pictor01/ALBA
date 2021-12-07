@@ -5,7 +5,7 @@ package catalyst
 import (
 	"encoding/json"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/pictor01/ALBA/common/hexutil"
 )
 
 var _ = (*payloadResponseMarshaling)(nil)
