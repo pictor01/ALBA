@@ -21,17 +21,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/hexutil"
+	"github.com/pictor01/ALBA/consensus/ethash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/params"
 )
 
 var (
