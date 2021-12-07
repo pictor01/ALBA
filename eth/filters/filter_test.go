@@ -23,13 +23,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus/ethash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/params"
 )
 
 func makeReceipt(addr common.Address) *types.Receipt {
@@ -60,7 +60,7 @@ func BenchmarkFilters(b *testing.B) {
 	defer db.Close()
 
 	genesis := core.GenesisBlockForTesting(db, addr1, big.NewInt(1000000))
-	chain, receipts := core.GenerateChain(params.TestChainConfig, genesis, ethash.NewFaker(), db, 100010, func(i int, gen *core.BlockGen) {
+	chain, receipts := core.GenerateChain(params.TestChainConfig, genesis, albaash.NewFaker(), db, 100010, func(i int, gen *core.BlockGen) {
 		switch i {
 		case 2403:
 			receipt := makeReceipt(addr1)
