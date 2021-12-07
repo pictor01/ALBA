@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/forkid"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/forkid"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/rlp"
 )
 
-// enrEntry is the ENR entry which advertises `eth` protocol on the discovery.
+// enrEntry is the ENR entry which advertises `alba` protocol on the discovery.
 type enrEntry struct {
 	ForkID forkid.ID // Fork identifier per EIP-2124
 
@@ -33,7 +33,7 @@ type enrEntry struct {
 
 // ENRKey implements enr.Entry.
 func (e enrEntry) ENRKey() string {
-	return "eth"
+	return "alba"
 }
 
 // StartENRUpdater starts the `eth` ENR updater loop, which listens for chain
@@ -57,7 +57,7 @@ func StartENRUpdater(chain *core.BlockChain, ln *enode.LocalNode) {
 	}()
 }
 
-// currentENREntry constructs an `eth` ENR entry based on the current state of the chain.
+// currentENREntry constructs an `alba` ENR entry based on the current state of the chain.
 func currentENREntry(chain *core.BlockChain) *enrEntry {
 	return &enrEntry{
 		ForkID: forkid.NewID(chain.Config(), chain.Genesis().Hash(), chain.CurrentHeader().Number.Uint64()),
