@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"errors"
@@ -22,22 +22,22 @@ import (
 	"io"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/forkid"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/forkid"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/rlp"
 )
 
 // Constants to match up protocol versions and messages
 const (
-	ETH66 = 66
+	ALBA66 = 66
 )
 
-// ProtocolName is the official short name of the `eth` protocol used during
+// ProtocolName is the official short name of the `alba` protocol used during
 // devp2p capability negotiation.
-const ProtocolName = "eth"
+const ProtocolName = "alba"
 
-// ProtocolVersions are the supported versions of the `eth` protocol (first
+// ProtocolVersions are the supported versions of the `alba` protocol (first
 // is primary).
 var ProtocolVersions = []uint{ETH66}
 
