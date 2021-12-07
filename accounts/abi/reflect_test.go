@@ -259,3 +259,4 @@ func TestConvertType(t *testing.T) {
 		t.Errorf("ConvertType failed, got %v want %v", out3[1].Y, big.NewInt(2))
 	}
 }
+
