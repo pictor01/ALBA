@@ -71,7 +71,7 @@ func TestGetBlockHeadersDataEncodeDecode(t *testing.T) {
 }
 
 // TestAlba66EmptyMessages tests encoding of empty eth66 messages
-func TestEth66EmptyMessages(t *testing.T) {
+func TestAlba66EmptyMessages(t *testing.T) {
 	// All empty messages encodes to the same format
 	want := common.FromHex("c4820457c0")
 
@@ -119,7 +119,7 @@ func TestEth66EmptyMessages(t *testing.T) {
 }
 
 // TestAlba66Messages tests the encoding of all redefined eth66 messages
-func TestEth66Messages(t *testing.T) {
+func TestAlba66Messages(t *testing.T) {
 
 	// Some basic structs used during testing
 	var (
