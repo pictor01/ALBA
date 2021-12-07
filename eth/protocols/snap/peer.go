@@ -17,9 +17,9 @@
 package snap
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/p2p"
 )
 
 // Peer is a collection of relevant information we have about a `snap` peer.
