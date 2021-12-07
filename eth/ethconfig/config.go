@@ -25,19 +25,19 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/beacon"
-	"github.com/ethereum/go-ethereum/consensus/clique"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/gasprice"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus"
+	"github.com/pictor01/ALBA/consensus/beacon"
+	"github.com/pictor01/ALBA/consensus/clique"
+	"github.com/pictor01/ALBA/consensus/albaash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/gasprice"
+	"github.com/pictor01/ALBA/albadb"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/params"
 )
 
 // FullNodeGPO contains default gasprice oracle settings for full node.
@@ -63,8 +63,8 @@ var LightClientGPO = gasprice.Config{
 // Defaults contains default settings for use on the Ethereum main net.
 var Defaults = Config{
 	SyncMode: downloader.SnapSync,
-	Ethash: ethash.Config{
-		CacheDir:         "ethash",
+	Albaash: albaash.Config{
+		CacheDir:         "albaash",
 		CachesInMem:      2,
 		CachesOnDisk:     3,
 		CachesLockMmap:   false,
@@ -103,16 +103,16 @@ func init() {
 		}
 	}
 	if runtime.GOOS == "darwin" {
-		Defaults.Ethash.DatasetDir = filepath.Join(home, "Library", "Ethash")
+		Defaults.Albaash.DatasetDir = filepath.Join(home, "Library", "Albaash")
 	} else if runtime.GOOS == "windows" {
 		localappdata := os.Getenv("LOCALAPPDATA")
 		if localappdata != "" {
-			Defaults.Ethash.DatasetDir = filepath.Join(localappdata, "Ethash")
+			Defaults.Albaash.DatasetDir = filepath.Join(localappdata, "Albaash")
 		} else {
-			Defaults.Ethash.DatasetDir = filepath.Join(home, "AppData", "Local", "Ethash")
+			Defaults.Albaash.DatasetDir = filepath.Join(home, "AppData", "Local", "Albaash")
 		}
 	} else {
-		Defaults.Ethash.DatasetDir = filepath.Join(home, ".ethash")
+		Defaults.Albaash.DatasetDir = filepath.Join(home, ".albaash")
 	}
 }
 
@@ -130,7 +130,7 @@ type Config struct {
 
 	// This can be set to list of enrtree:// URLs which will be queried for
 	// for nodes to connect to.
-	EthDiscoveryURLs  []string
+	AlbaDiscoveryURLs  []string
 	SnapDiscoveryURLs []string
 
 	NoPruning  bool // Whether to disable pruning and flush everything to disk
@@ -172,8 +172,8 @@ type Config struct {
 	// Mining options
 	Miner miner.Config
 
-	// Ethash options
-	Ethash ethash.Config
+	// Albaash options
+	Albaash albaash.Config
 
 	// Transaction pool options
 	TxPool core.TxPoolConfig
@@ -211,21 +211,21 @@ type Config struct {
 }
 
 // CreateConsensusEngine creates a consensus engine for the given chain configuration.
-func CreateConsensusEngine(stack *node.Node, chainConfig *params.ChainConfig, config *ethash.Config, notify []string, noverify bool, db ethdb.Database) consensus.Engine {
+func CreateConsensusEngine(stack *node.Node, chainConfig *params.ChainConfig, config *albaash.Config, notify []string, noverify bool, db albadb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	var engine consensus.Engine
 	if chainConfig.Clique != nil {
 		engine = clique.New(chainConfig.Clique, db)
 	} else {
 		switch config.PowMode {
-		case ethash.ModeFake:
-			log.Warn("Ethash used in fake mode")
-		case ethash.ModeTest:
-			log.Warn("Ethash used in test mode")
-		case ethash.ModeShared:
-			log.Warn("Ethash used in shared mode")
+		case albaash.ModeFake:
+			log.Warn("Albaash used in fake mode")
+		case albaash.ModeTest:
+			log.Warn("Albaash used in test mode")
+		case albaash.ModeShared:
+			log.Warn("Albaash used in shared mode")
 		}
-		engine = ethash.New(ethash.Config{
+		engine = Albaash.New(ethash.Config{
 			PowMode:          config.PowMode,
 			CacheDir:         stack.ResolvePath(config.CacheDir),
 			CachesInMem:      config.CachesInMem,
