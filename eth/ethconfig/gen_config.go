@@ -6,13 +6,13 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/gasprice"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus/albaash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/gasprice"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/params"
 )
 
 // MarshalTOML marshals as TOML.
@@ -21,7 +21,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 		Genesis                         *core.Genesis `toml:",omitempty"`
 		NetworkId                       uint64
 		SyncMode                        downloader.SyncMode
-		EthDiscoveryURLs                []string
+		AlbaDiscoveryURLs                []string
 		SnapDiscoveryURLs               []string
 		NoPruning                       bool
 		NoPrefetch                      bool
@@ -49,7 +49,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 		SnapshotCache                   int
 		Preimages                       bool
 		Miner                           miner.Config
-		Ethash                          ethash.Config
+		Albaash                          albaash.Config
 		TxPool                          core.TxPoolConfig
 		GPO                             gasprice.Config
 		EnablePreimageRecording         bool
@@ -66,7 +66,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 	enc.Genesis = c.Genesis
 	enc.NetworkId = c.NetworkId
 	enc.SyncMode = c.SyncMode
-	enc.EthDiscoveryURLs = c.EthDiscoveryURLs
+	enc.AlbaDiscoveryURLs = c.AlbaDiscoveryURLs
 	enc.SnapDiscoveryURLs = c.SnapDiscoveryURLs
 	enc.NoPruning = c.NoPruning
 	enc.NoPrefetch = c.NoPrefetch
@@ -94,7 +94,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 	enc.SnapshotCache = c.SnapshotCache
 	enc.Preimages = c.Preimages
 	enc.Miner = c.Miner
-	enc.Ethash = c.Ethash
+	enc.Albaash = c.Albaash
 	enc.TxPool = c.TxPool
 	enc.GPO = c.GPO
 	enc.EnablePreimageRecording = c.EnablePreimageRecording
@@ -115,7 +115,7 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 		Genesis                         *core.Genesis `toml:",omitempty"`
 		NetworkId                       *uint64
 		SyncMode                        *downloader.SyncMode
-		EthDiscoveryURLs                []string
+		AlbaDiscoveryURLs                []string
 		SnapDiscoveryURLs               []string
 		NoPruning                       *bool
 		NoPrefetch                      *bool
@@ -143,7 +143,7 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 		SnapshotCache                   *int
 		Preimages                       *bool
 		Miner                           *miner.Config
-		Ethash                          *ethash.Config
+		Albaash                          *albaash.Config
 		TxPool                          *core.TxPoolConfig
 		GPO                             *gasprice.Config
 		EnablePreimageRecording         *bool
@@ -169,8 +169,8 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 	if dec.SyncMode != nil {
 		c.SyncMode = *dec.SyncMode
 	}
-	if dec.EthDiscoveryURLs != nil {
-		c.EthDiscoveryURLs = dec.EthDiscoveryURLs
+	if dec.AlbaDiscoveryURLs != nil {
+		c.AlbaDiscoveryURLs = dec.AlbaDiscoveryURLs
 	}
 	if dec.SnapDiscoveryURLs != nil {
 		c.SnapDiscoveryURLs = dec.SnapDiscoveryURLs
@@ -253,8 +253,8 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 	if dec.Miner != nil {
 		c.Miner = *dec.Miner
 	}
-	if dec.Ethash != nil {
-		c.Ethash = *dec.Ethash
+	if dec.Albaash != nil {
+		c.Albaash = *dec.Albaash
 	}
 	if dec.TxPool != nil {
 		c.TxPool = *dec.TxPool
