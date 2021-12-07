@@ -21,17 +21,17 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/bloombits"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/bloombits"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/albadb"
+	"github.com/pictor01/ALBA/event"
+	"github.com/pictor01/ALBA/rpc"
 )
 
 type Backend interface {
-	ChainDb() ethdb.Database
+	ChainDb() albadb.Database
 	HeaderByNumber(ctx context.Context, blockNr rpc.BlockNumber) (*types.Header, error)
 	HeaderByHash(ctx context.Context, blockHash common.Hash) (*types.Header, error)
 	GetReceipts(ctx context.Context, blockHash common.Hash) (types.Receipts, error)
@@ -51,7 +51,7 @@ type Backend interface {
 type Filter struct {
 	backend Backend
 
-	db        ethdb.Database
+	db        albadb.Database
 	addresses []common.Address
 	topics    [][]common.Hash
 
