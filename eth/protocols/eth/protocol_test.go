@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"bytes"
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/rlp"
 )
 
 // Tests that the custom union field encoder and decoder works correctly.
@@ -70,7 +70,7 @@ func TestGetBlockHeadersDataEncodeDecode(t *testing.T) {
 	}
 }
 
-// TestEth66EmptyMessages tests encoding of empty eth66 messages
+// TestAlba66EmptyMessages tests encoding of empty eth66 messages
 func TestEth66EmptyMessages(t *testing.T) {
 	// All empty messages encodes to the same format
 	want := common.FromHex("c4820457c0")
@@ -118,7 +118,7 @@ func TestEth66EmptyMessages(t *testing.T) {
 
 }
 
-// TestEth66Messages tests the encoding of all redefined eth66 messages
+// TestAlba66Messages tests the encoding of all redefined eth66 messages
 func TestEth66Messages(t *testing.T) {
 
 	// Some basic structs used during testing
