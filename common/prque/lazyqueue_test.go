@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/poctor01/ALBA/common/mclock"
+	"github.com/pictor01/ALBA/common/mclock"
 )
 
 const (
