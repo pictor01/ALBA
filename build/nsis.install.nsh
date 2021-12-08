@@ -5,7 +5,7 @@ OutFile "${OUTPUTFILE}" # set through command line arguments
 # Links for "Add/Remove Programs"
 !define HELPURL "https://github.com/pictor01/ALBA/issues"
 !define UPDATEURL "https://github.com/pictor01/ALBA/releases"
-!define ABOUTURL "https://github.com/ethereum/go-ethereum#ethereum-go"
+!define ABOUTURL "https://github.com/pictor01/ALBA#pictor01-go"
 !define /date NOW "%Y%m%d"
 
 PageEx license
