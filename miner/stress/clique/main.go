@@ -27,21 +27,21 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/fdlimit"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/accounts/keystore"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/fdlimit"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/params"
 )
 
 func main() {
@@ -66,7 +66,7 @@ func main() {
 
 	var (
 		stacks []*node.Node
-		nodes  []*eth.Ethereum
+		nodes  []*alba.Alba
 		enodes []*enode.Node
 	)
 	for _, sealer := range sealers {
@@ -86,7 +86,7 @@ func main() {
 		}
 		// Start tracking the node and its enode
 		stacks = append(stacks, stack)
-		nodes = append(nodes, ethBackend)
+		nodes = append(nodes, albaBackend)
 		enodes = append(enodes, stack.Server().Self())
 
 		// Inject the signer key and start sealing with it
@@ -201,14 +201,14 @@ func makeSealer(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
 		return nil, nil, err
 	}
 	// Create and register the backend
-	ethBackend, err := eth.New(stack, &ethconfig.Config{
+	albaBackend, err := alba.New(stack, &ethconfig.Config{
 		Genesis:         genesis,
 		NetworkId:       genesis.Config.ChainID.Uint64(),
 		SyncMode:        downloader.FullSync,
 		DatabaseCache:   256,
 		DatabaseHandles: 256,
 		TxPool:          core.DefaultTxPoolConfig,
-		GPO:             ethconfig.Defaults.GPO,
+		GPO:             albaconfig.Defaults.GPO,
 		Miner: miner.Config{
 			GasCeil:  genesis.GasLimit * 11 / 10,
 			GasPrice: big.NewInt(1),
@@ -220,5 +220,5 @@ func makeSealer(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
 	}
 
 	err = stack.Start()
-	return stack, ethBackend, err
+	return stack, albaBackend, err
 }
