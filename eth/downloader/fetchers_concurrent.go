@@ -21,10 +21,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/prque"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/prque"
+	"github.com/pictor01/ALBA/alba/protocols/alba"
+	"github.com/pictor01/ALBA/log"
 )
 
 // timeoutGracePeriod is the amount of time to allow for a peer to deliver a
