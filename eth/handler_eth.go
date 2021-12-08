@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"fmt"
@@ -22,27 +22,27 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/alba/protocols/alba"
+	"github.com/pictor01/ALBA/p2p/enode"
 )
 
-// ethHandler implements the eth.Backend interface to handle the various network
+// albaHandler implements the alba.Backend interface to handle the various network
 // packets that are sent as replies or broadcasts.
-type ethHandler handler
+type albaHandler handler
 
-func (h *ethHandler) Chain() *core.BlockChain { return h.chain }
-func (h *ethHandler) TxPool() eth.TxPool      { return h.txpool }
+func (h *albaHandler) Chain() *core.BlockChain { return h.chain }
+func (h *albaHandler) TxPool() alba.TxPool      { return h.txpool }
 
-// RunPeer is invoked when a peer joins on the `eth` protocol.
-func (h *ethHandler) RunPeer(peer *eth.Peer, hand eth.Handler) error {
-	return (*handler)(h).runEthPeer(peer, hand)
+// RunPeer is invoked when a peer joins on the `alba` protocol.
+func (h *albaHandler) RunPeer(peer *alba.Peer, hand alba.Handler) error {
+	return (*handler)(h).runAlbaPeer(peer, hand)
 }
 
-// PeerInfo retrieves all known `eth` information about a peer.
-func (h *ethHandler) PeerInfo(id enode.ID) interface{} {
+// PeerInfo retrieves all known `alba` information about a peer.
+func (h *albaHandler) PeerInfo(id enode.ID) interface{} {
 	if p := h.peers.peer(id.String()); p != nil {
 		return p.info()
 	}
@@ -51,39 +51,39 @@ func (h *ethHandler) PeerInfo(id enode.ID) interface{} {
 
 // AcceptTxs retrieves whether transaction processing is enabled on the node
 // or if inbound transactions should simply be dropped.
-func (h *ethHandler) AcceptTxs() bool {
+func (h *albaHandler) AcceptTxs() bool {
 	return atomic.LoadUint32(&h.acceptTxs) == 1
 }
 
 // Handle is invoked from a peer's message handler when it receives a new remote
 // message that the handler couldn't consume and serve itself.
-func (h *ethHandler) Handle(peer *eth.Peer, packet eth.Packet) error {
+func (h *albaHandler) Handle(peer *alba.Peer, packet alba.Packet) error {
 	// Consume any broadcasts and announces, forwarding the rest to the downloader
 	switch packet := packet.(type) {
 	case *eth.NewBlockHashesPacket:
 		hashes, numbers := packet.Unpack()
 		return h.handleBlockAnnounces(peer, hashes, numbers)
 
-	case *eth.NewBlockPacket:
+	case *alba.NewBlockPacket:
 		return h.handleBlockBroadcast(peer, packet.Block, packet.TD)
 
-	case *eth.NewPooledTransactionHashesPacket:
+	case *alba.NewPooledTransactionHashesPacket:
 		return h.txFetcher.Notify(peer.ID(), *packet)
 
-	case *eth.TransactionsPacket:
+	case *alba.TransactionsPacket:
 		return h.txFetcher.Enqueue(peer.ID(), *packet, false)
 
-	case *eth.PooledTransactionsPacket:
+	case *alba.PooledTransactionsPacket:
 		return h.txFetcher.Enqueue(peer.ID(), *packet, true)
 
 	default:
-		return fmt.Errorf("unexpected eth packet type: %T", packet)
+		return fmt.Errorf("unexpected alba packet type: %T", packet)
 	}
 }
 
 // handleBlockAnnounces is invoked from a peer's message handler when it transmits a
 // batch of block announcements for the local node to process.
-func (h *ethHandler) handleBlockAnnounces(peer *eth.Peer, hashes []common.Hash, numbers []uint64) error {
+func (h *albaHandler) handleBlockAnnounces(peer *alba.Peer, hashes []common.Hash, numbers []uint64) error {
 	// Drop all incoming block announces from the p2p network if
 	// the chain already entered the pos stage and disconnect the
 	// remote peer.
@@ -111,7 +111,7 @@ func (h *ethHandler) handleBlockAnnounces(peer *eth.Peer, hashes []common.Hash, 
 
 // handleBlockBroadcast is invoked from a peer's message handler when it transmits a
 // block broadcast for the local node to process.
-func (h *ethHandler) handleBlockBroadcast(peer *eth.Peer, block *types.Block, td *big.Int) error {
+func (h *albaHandler) handleBlockBroadcast(peer *alba.Peer, block *types.Block, td *big.Int) error {
 	// Drop all incoming block announces from the p2p network if
 	// the chain already entered the pos stage and disconnect the
 	// remote peer.
