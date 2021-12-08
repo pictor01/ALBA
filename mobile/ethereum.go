@@ -16,13 +16,13 @@
 
 // Contains all the wrappers from the go-ethereum root package.
 
-package geth
+package palba
 
 import (
 	"errors"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/pictor01/ALBA"
+	"github.com/pictor01/ALBA/common"
 )
 
 // Subscription represents an event subscription where events are
