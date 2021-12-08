@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"bytes"
@@ -25,10 +25,10 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/state"
+	"github.com/pictor01/ALBA/crypto"
 )
 
 var dumper = spew.ConfigState{Indent: "    "}
