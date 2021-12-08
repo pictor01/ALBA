@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/forkid"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/forkid"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/rlp"
 )
 
-// ethEntry is the "eth" ENR entry which advertises eth protocol
+// albaEntry is the "alba" ENR entry which advertises alba protocol
 // on the discovery network.
-type ethEntry struct {
+type albaEntry struct {
 	ForkID forkid.ID // Fork identifier per EIP-2124
 
 	// Ignore additional fields (for forward compatibility).
@@ -33,23 +33,23 @@ type ethEntry struct {
 }
 
 // ENRKey implements enr.Entry.
-func (e ethEntry) ENRKey() string {
-	return "eth"
+func (e albaEntry) ENRKey() string {
+	return "alba"
 }
 
-// startEthEntryUpdate starts the ENR updater loop.
-func (eth *Ethereum) startEthEntryUpdate(ln *enode.LocalNode) {
+// startAlbaEntryUpdate starts the ENR updater loop.
+func (alba *Alba) startAlbaEntryUpdate(ln *enode.LocalNode) {
 	var newHead = make(chan core.ChainHeadEvent, 10)
-	sub := eth.blockchain.SubscribeChainHeadEvent(newHead)
+	sub := alba.blockchain.SubscribeChainHeadEvent(newHead)
 
 	go func() {
 		defer sub.Unsubscribe()
 		for {
 			select {
 			case <-newHead:
-				ln.Set(eth.currentEthEntry())
+				ln.Set(alba.currentEthEntry())
 			case <-sub.Err():
-				// Would be nice to sync with eth.Stop, but there is no
+				// Would be nice to sync with alba.Stop, but there is no
 				// good way to do that.
 				return
 			}
@@ -57,7 +57,7 @@ func (eth *Ethereum) startEthEntryUpdate(ln *enode.LocalNode) {
 	}()
 }
 
-func (eth *Ethereum) currentEthEntry() *ethEntry {
-	return &ethEntry{ForkID: forkid.NewID(eth.blockchain.Config(), eth.blockchain.Genesis().Hash(),
-		eth.blockchain.CurrentHeader().Number.Uint64())}
+func (alba *Alba) currentAlbaEntry() *albaEntry {
+	return &albaEntry{ForkID: forkid.NewID(alba.blockchain.Config(), alba.blockchain.Genesis().Hash(),
+		alba.blockchain.CurrentHeader().Number.Uint64())}
 }
