@@ -25,16 +25,16 @@ import (
 	"time"
 
 	mapset "github.com/deckarep/golang-set"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/misc"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/trie"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus"
+	"github.com/pictor01/ALBA/consensus/misc"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/state"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/event"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/params"
+	"github.com/pictor01/ALBA/trie"
 )
 
 const (
@@ -126,7 +126,7 @@ type worker struct {
 	config      *Config
 	chainConfig *params.ChainConfig
 	engine      consensus.Engine
-	eth         Backend
+	alba         Backend
 	chain       *core.BlockChain
 	merger      *consensus.Merger
 
@@ -196,7 +196,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 		config:             config,
 		chainConfig:        chainConfig,
 		engine:             engine,
-		eth:                eth,
+		alba:               alba,
 		mux:                mux,
 		chain:              eth.BlockChain(),
 		merger:             merger,
@@ -219,8 +219,8 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	// Subscribe NewTxsEvent for tx pool
 	worker.txsSub = eth.TxPool().SubscribeNewTxsEvent(worker.txsCh)
 	// Subscribe events for blockchain
-	worker.chainHeadSub = eth.BlockChain().SubscribeChainHeadEvent(worker.chainHeadCh)
-	worker.chainSideSub = eth.BlockChain().SubscribeChainSideEvent(worker.chainSideCh)
+	worker.chainHeadSub = alba.BlockChain().SubscribeChainHeadEvent(worker.chainHeadCh)
+	worker.chainSideSub = alba.BlockChain().SubscribeChainSideEvent(worker.chainSideCh)
 
 	// Sanitize recommit interval if the user-specified one is too short.
 	recommit := worker.config.Recommit
