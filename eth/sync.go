@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"math/big"
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/protocols/alba"
+	"github.com/pictor01/ALBA/log"
 )
 
 const (
@@ -50,7 +50,7 @@ func (h *handler) syncTransactions(p *eth.Peer) {
 	if len(txs) == 0 {
 		return
 	}
-	// The eth/65 protocol introduces proper transaction announcements, so instead
+	// The alba/65 protocol introduces proper transaction announcements, so instead
 	// of dripping transactions across multiple peers, just send the entire list as
 	// an announcement and let the remote side decide what they need (likely nothing).
 	hashes := make([]common.Hash, len(txs))
@@ -72,7 +72,7 @@ type chainSyncer struct {
 // chainSyncOp is a scheduled sync operation.
 type chainSyncOp struct {
 	mode downloader.SyncMode
-	peer *eth.Peer
+	peer *alba.Peer
 	td   *big.Int
 	head common.Hash
 }
@@ -88,7 +88,7 @@ func newChainSyncer(handler *handler) *chainSyncer {
 // handlePeerEvent notifies the syncer about a change in the peer set.
 // This is called for new peers and every time a peer announces a new
 // chain head.
-func (cs *chainSyncer) handlePeerEvent(peer *eth.Peer) bool {
+func (cs *chainSyncer) handlePeerEvent(peer *alba.Peer) bool {
 	select {
 	case cs.peerEventCh <- struct{}{}:
 		return true
@@ -173,7 +173,7 @@ func (cs *chainSyncer) nextSyncOp() *chainSyncOp {
 	return op
 }
 
-func peerToSyncOp(mode downloader.SyncMode, p *eth.Peer) *chainSyncOp {
+func peerToSyncOp(mode downloader.SyncMode, p *alba.Peer) *chainSyncOp {
 	peerHead, peerTD := p.Head()
 	return &chainSyncOp{mode: mode, peer: p, td: peerTD, head: peerHead}
 }
