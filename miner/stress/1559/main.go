@@ -26,21 +26,21 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/fdlimit"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/fdlimit"
+	"github.com/pictor01/ALBA/consensus/albaash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/params"
 )
 
 var (
@@ -57,7 +57,7 @@ func main() {
 		faucets[i], _ = crypto.GenerateKey()
 	}
 	// Pre-generate the ethash mining DAG so we don't race
-	ethash.MakeDataset(1, ethconfig.Defaults.Ethash.DatasetDir)
+	albaash.MakeDataset(1, albaconfig.Defaults.Albaash.DatasetDir)
 
 	// Create an Ethash network based off of the Ropsten config
 	genesis := makeGenesis(faucets)
@@ -68,7 +68,7 @@ func main() {
 
 	var (
 		stacks []*node.Node
-		nodes  []*eth.Ethereum
+		nodes  []*alba.Alba
 		enodes []*enode.Node
 	)
 	for i := 0; i < 4; i++ {
@@ -196,7 +196,7 @@ func makeTransaction(nonce uint64, privKey *ecdsa.PrivateKey, signer types.Signe
 func makeGenesis(faucets []*ecdsa.PrivateKey) *core.Genesis {
 	genesis := core.DefaultRopstenGenesisBlock()
 
-	genesis.Config = params.AllEthashProtocolChanges
+	genesis.Config = params.AllAlbaashProtocolChanges
 	genesis.Config.LondonBlock = londonBlock
 	genesis.Difficulty = params.MinimumDifficulty
 
@@ -211,6 +211,7 @@ func makeGenesis(faucets []*ecdsa.PrivateKey) *core.Genesis {
 		genesis.Alloc[crypto.PubkeyToAddress(faucet.PublicKey)] = core.GenesisAccount{
 			Balance: new(big.Int).Exp(big.NewInt(2), big.NewInt(128), nil),
 		}
+		
 	}
 	if londonBlock.Sign() == 0 {
 		log.Info("Enabled the eip 1559 by default")
@@ -220,12 +221,12 @@ func makeGenesis(faucets []*ecdsa.PrivateKey) *core.Genesis {
 	return genesis
 }
 
-func makeMiner(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
-	// Define the basic configurations for the Ethereum node
+func makeMiner(genesis *core.Genesis) (*node.Node, *alba.Alba, error) {
+	// Define the basic configurations for the Alba node
 	datadir, _ := ioutil.TempDir("", "")
 
 	config := &node.Config{
-		Name:    "geth",
+		Name:    "palba",
 		Version: params.Version,
 		DataDir: datadir,
 		P2P: p2p.Config{
@@ -235,7 +236,7 @@ func makeMiner(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
 		},
 		UseLightweightKDF: true,
 	}
-	// Create the node and configure a full Ethereum node on it
+	// Create the node and configure a full Alba node on it
 	stack, err := node.New(config)
 	if err != nil {
 		return nil, nil, err
@@ -247,8 +248,8 @@ func makeMiner(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
 		DatabaseCache:   256,
 		DatabaseHandles: 256,
 		TxPool:          core.DefaultTxPoolConfig,
-		GPO:             ethconfig.Defaults.GPO,
-		Ethash:          ethconfig.Defaults.Ethash,
+		GPO:             albaconfig.Defaults.GPO,
+		Albaash:         albaconfig.Defaults.Albaash,
 		Miner: miner.Config{
 			Etherbase: common.Address{1},
 			GasCeil:   genesis.GasLimit * 11 / 10,
@@ -260,5 +261,5 @@ func makeMiner(genesis *core.Genesis) (*node.Node, *eth.Ethereum, error) {
 		return nil, nil, err
 	}
 	err = stack.Start()
-	return stack, ethBackend, err
+	return stack, albaBackend, err
 }
