@@ -16,13 +16,13 @@
 
 // Contains various wrappers for primitive types.
 
-package geth
+package palba
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/pictor01/ALBA/common"
 )
 
 // Strings represents s slice of strs.
