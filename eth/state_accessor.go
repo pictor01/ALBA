@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"errors"
 	"fmt"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/trie"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/state"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/core/vm"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/trie"
 )
 
 // StateAtBlock retrieves the state database associated with a certain block.
@@ -63,7 +63,7 @@ func (eth *Ethereum) StateAtBlock(block *types.Block, reexec uint64, base *state
 		if preferDisk {
 			// Create an ephemeral trie.Database for isolating the live one. Otherwise
 			// the internal junks created by tracing will be persisted into the disk.
-			database = state.NewDatabaseWithConfig(eth.chainDb, &trie.Config{Cache: 16})
+			database = state.NewDatabaseWithConfig(alba.chainDb, &trie.Config{Cache: 16})
 			if statedb, err = state.New(block.Root(), database, nil); err == nil {
 				log.Info("Found disk backend for state trie", "root", block.Root(), "number", block.Number())
 				return statedb, nil
@@ -94,7 +94,7 @@ func (eth *Ethereum) StateAtBlock(block *types.Block, reexec uint64, base *state
 			if current.NumberU64() == 0 {
 				return nil, errors.New("genesis state is missing")
 			}
-			parent := eth.blockchain.GetBlock(current.ParentHash(), current.NumberU64()-1)
+			parent := alba.blockchain.GetBlock(current.ParentHash(), current.NumberU64()-1)
 			if parent == nil {
 				return nil, fmt.Errorf("missing block %v %d", current.ParentHash(), current.NumberU64()-1)
 			}
@@ -136,7 +136,7 @@ func (eth *Ethereum) StateAtBlock(block *types.Block, reexec uint64, base *state
 			return nil, fmt.Errorf("processing block %d failed: %v", current.NumberU64(), err)
 		}
 		// Finalize the state so any modifications are written to the trie
-		root, err := statedb.Commit(eth.blockchain.Config().IsEIP158(current.Number()))
+		root, err := statedb.Commit(alba.blockchain.Config().IsEIP158(current.Number()))
 		if err != nil {
 			return nil, fmt.Errorf("stateAtBlock commit failed, number %d root %v: %w",
 				current.NumberU64(), current.Root().Hex(), err)
@@ -165,13 +165,13 @@ func (eth *Ethereum) stateAtTransaction(block *types.Block, txIndex int, reexec 
 		return nil, vm.BlockContext{}, nil, errors.New("no transaction in genesis")
 	}
 	// Create the parent state database
-	parent := eth.blockchain.GetBlock(block.ParentHash(), block.NumberU64()-1)
+	parent := alba.blockchain.GetBlock(block.ParentHash(), block.NumberU64()-1)
 	if parent == nil {
 		return nil, vm.BlockContext{}, nil, fmt.Errorf("parent %#x not found", block.ParentHash())
 	}
 	// Lookup the statedb of parent block from the live database,
 	// otherwise regenerate it on the flight.
-	statedb, err := eth.StateAtBlock(parent, reexec, nil, true, false)
+	statedb, err := alba.StateAtBlock(parent, reexec, nil, true, false)
 	if err != nil {
 		return nil, vm.BlockContext{}, nil, err
 	}
@@ -179,12 +179,12 @@ func (eth *Ethereum) stateAtTransaction(block *types.Block, txIndex int, reexec 
 		return nil, vm.BlockContext{}, statedb, nil
 	}
 	// Recompute transactions up to the target index.
-	signer := types.MakeSigner(eth.blockchain.Config(), block.Number())
+	signer := types.MakeSigner(alba.blockchain.Config(), block.Number())
 	for idx, tx := range block.Transactions() {
 		// Assemble the transaction call message and return if the requested offset
 		msg, _ := tx.AsMessage(signer, block.BaseFee())
 		txContext := core.NewEVMTxContext(msg)
-		context := core.NewEVMBlockContext(block.Header(), eth.blockchain, nil)
+		context := core.NewEVMBlockContext(block.Header(), alba.blockchain, nil)
 		if idx == txIndex {
 			return msg, context, statedb, nil
 		}
