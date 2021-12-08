@@ -17,12 +17,12 @@
 // Contains all the wrappers from the accounts package to support client side enode
 // management on mobile platforms.
 
-package geth
+package palba
 
 import (
 	"errors"
 
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/pictor01/ALBA/p2p/enode"
 )
 
 // Enode represents a host on the network.
