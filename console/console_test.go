@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/pictor01/ALBA/common"
-	"github.com/pictor01/ALBA/consensus/ethash"
+	"github.com/pictor01/ALBA/consensus/albaash"
 	"github.com/pictor01/ALBA/console/prompt"
 	"github.com/pictor01/ALBA/core"
 	"github.com/pictor01/ALBA/alba"
