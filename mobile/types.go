@@ -16,16 +16,16 @@
 
 // Contains all the wrappers from the core/types package.
 
-package geth
+package palba
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/rlp"
 )
 
 type jsonEncoder interface {
