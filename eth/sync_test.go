@@ -29,7 +29,7 @@ import (
 )
 
 // Tests that snap sync is disabled after a successful sync cycle.
-func TestSnapSyncDisabling66(t *testing.T) { testSnapSyncDisabling(t, eth.ETH66, snap.SNAP1) }
+func TestSnapSyncDisabling66(t *testing.T) { testSnapSyncDisabling(t, alba.ALBA66, snap.SNAP1) }
 
 // Tests that snap sync gets disabled as soon as a real block is successfully
 // imported into the blockchain.
@@ -50,23 +50,23 @@ func testSnapSyncDisabling(t *testing.T, ethVer uint, snapVer uint) {
 	}
 	defer full.close()
 
-	// Sync up the two handlers via both `eth` and `snap`
+	// Sync up the two handlers via both `alba` and `snap`
 	caps := []p2p.Cap{{Name: "eth", Version: ethVer}, {Name: "snap", Version: snapVer}}
 
-	emptyPipeEth, fullPipeEth := p2p.MsgPipe()
-	defer emptyPipeEth.Close()
-	defer fullPipeEth.Close()
+	emptyPipeAlba, fullPipeEth := p2p.MsgPipe()
+	defer emptyPipeAlba.Close()
+	defer fullPipeAlba.Close()
 
-	emptyPeerEth := eth.NewPeer(ethVer, p2p.NewPeer(enode.ID{1}, "", caps), emptyPipeEth, empty.txpool)
-	fullPeerEth := eth.NewPeer(ethVer, p2p.NewPeer(enode.ID{2}, "", caps), fullPipeEth, full.txpool)
-	defer emptyPeerEth.Close()
-	defer fullPeerEth.Close()
+	emptyPeerAlba := alba.NewPeer(ethVer, p2p.NewPeer(enode.ID{1}, "", caps), emptyPipeEth, empty.txpool)
+	fullPeerAlba := alba.NewPeer(albaVer, p2p.NewPeer(enode.ID{2}, "", caps), fullPipeEth, full.txpool)
+	defer emptyPeerAlba.Close()
+	defer fullPeerAlba.Close()
 
-	go empty.handler.runEthPeer(emptyPeerEth, func(peer *eth.Peer) error {
-		return eth.Handle((*ethHandler)(empty.handler), peer)
+	go empty.handler.runAlbaPeer(emptyPeerAlba, func(peer *alba.Peer) error {
+		return alba.Handle((*albaHandler)(empty.handler), peer)
 	})
-	go full.handler.runEthPeer(fullPeerEth, func(peer *eth.Peer) error {
-		return eth.Handle((*ethHandler)(full.handler), peer)
+	go full.handler.runAlbaPeer(fullPeerAlba, func(peer *alba.Peer) error {
+		return alba.Handle((*albaHandler)(full.handler), peer)
 	})
 
 	emptyPipeSnap, fullPipeSnap := p2p.MsgPipe()
