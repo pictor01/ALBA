@@ -21,18 +21,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/clique"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/ethdb/memorydb"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/trie"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus"
+	"github.com/pictor01/ALBA/consensus/clique"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/state"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/core/vm"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/albadb/memorydb"
+	"github.com/pictor01/ALBA/event"
+	"github.com/pictor01/ALBA/trie"
 )
 
 type mockBackend struct {
@@ -194,7 +194,7 @@ func TestCloseMiner(t *testing.T) {
 
 // TestMinerSetEtherbase checks that etherbase becomes set even if mining isn't
 // possible at the moment
-func TestMinerSetEtherbase(t *testing.T) {
+func TestMinerSetAlbarbase(t *testing.T) {
 	miner, mux := createMiner(t)
 	// Start with a 'bad' mining address
 	miner.Start(common.HexToAddress("0xdead"))
