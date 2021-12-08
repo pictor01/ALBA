@@ -14,35 +14,35 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package eth
+package alba
 
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/eth/protocols/snap"
+	"github.com/pictor01/ALBA/alba/protocols/alba"
+	"github.com/pictor01/ALBA/alba/protocols/snap"
 )
 
-// ethPeerInfo represents a short summary of the `eth` sub-protocol metadata known
+// albaPeerInfo represents a short summary of the `eth` sub-protocol metadata known
 // about a connected peer.
-type ethPeerInfo struct {
-	Version    uint     `json:"version"`    // Ethereum protocol version negotiated
+type albaPeerInfo struct {
+	Version    uint     `json:"version"`    // Alba protocol version negotiated
 	Difficulty *big.Int `json:"difficulty"` // Total difficulty of the peer's blockchain
 	Head       string   `json:"head"`       // Hex hash of the peer's best owned block
 }
 
-// ethPeer is a wrapper around eth.Peer to maintain a few extra metadata.
-type ethPeer struct {
-	*eth.Peer
+// albaPeer is a wrapper around eth.Peer to maintain a few extra metadata.
+type albaPeer struct {
+	*alba.Peer
 	snapExt  *snapPeer     // Satellite `snap` connection
 	snapWait chan struct{} // Notification channel for snap connections
 }
 
-// info gathers and returns some `eth` protocol metadata known about a peer.
-func (p *ethPeer) info() *ethPeerInfo {
+// info gathers and returns some `alba` protocol metadata known about a peer.
+func (p *albaPeer) info() *albaPeerInfo {
 	hash, td := p.Head()
 
-	return &ethPeerInfo{
+	return &albaPeerInfo{
 		Version:    p.Version(),
 		Difficulty: td,
 		Head:       hash.Hex(),
