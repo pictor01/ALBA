@@ -26,10 +26,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/params"
 )
 
 var (
