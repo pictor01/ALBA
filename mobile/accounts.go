@@ -17,16 +17,16 @@
 // Contains all the wrappers from the accounts package to support client side key
 // management on mobile platforms.
 
-package geth
+package palba
 
 import (
 	"errors"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/pictor01/ALBA/accounts"
+	"github.com/pictor01/ALBA/accounts/keystore"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/crypto"
 )
 
 const (
