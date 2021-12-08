@@ -15,7 +15,7 @@
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
 // Package ethstats implements the network stats reporting service.
-package ethstats
+package albastats
 
 import (
 	"context"
@@ -30,20 +30,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	ethproto "github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/pictor01/ALBA"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/mclock"
+	"github.com/pictor01/ALBA/consensus"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	albaproto "github.com/pictor01/ALBA/alba/protocols/alba"
+	"github.com/pictor01/ALBA/event"
+	"github.com/pictor01/ALBA/les"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/rpc"
 	"github.com/gorilla/websocket"
 )
 
