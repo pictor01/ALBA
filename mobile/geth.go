@@ -17,24 +17,24 @@
 // Contains all the wrappers from the node package to support client side node
 // management on mobile platforms.
 
-package geth
+package palba
 
 import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/ethstats"
-	"github.com/ethereum/go-ethereum/internal/debug"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/nat"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/albaclient"
+	"github.com/pictor01/ALBA/albastats"
+	"github.com/pictor01/ALBA/internal/debug"
+	"github.com/pictor01/ALBA/les"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/p2p/nat"
+	"github.com/pictor01/ALBA/params"
 )
 
 // NodeConfig represents the collection of configuration values to fine tune the Geth
@@ -49,26 +49,26 @@ type NodeConfig struct {
 	// set to zero, then only the configured static and trusted peers can connect.
 	MaxPeers int
 
-	// EthereumEnabled specifies whether the node should run the Ethereum protocol.
-	EthereumEnabled bool
+	// AlbaEnabled specifies whether the node should run the Ethereum protocol.
+	AlbaEnabled bool
 
-	// EthereumNetworkID is the network identifier used by the Ethereum protocol to
+	// AlbaNetworkID is the network identifier used by the Ethereum protocol to
 	// decide if remote peers should be accepted or not.
-	EthereumNetworkID int64 // uint64 in truth, but Java can't handle that...
+	AlbaNetworkID int64 // uint64 in truth, but Java can't handle that...
 
-	// EthereumGenesis is the genesis JSON to use to seed the blockchain with. An
+	// AlbaGenesis is the genesis JSON to use to seed the blockchain with. An
 	// empty genesis state is equivalent to using the mainnet's state.
-	EthereumGenesis string
+	AlbaGenesis string
 
 	// EthereumDatabaseCache is the system memory in MB to allocate for database caching.
 	// A minimum of 16MB is always reserved.
-	EthereumDatabaseCache int
+	AlbaDatabaseCache int
 
-	// EthereumNetStats is a netstats connection string to use to report various
+	// AlbaNetStats is a netstats connection string to use to report various
 	// chain, transaction and node stats to a monitoring server.
 	//
 	// It has the form "nodename:secret@host:port"
-	EthereumNetStats string
+	AlbaNetStats string
 
 	// Listening address of pprof server.
 	PprofAddress string
@@ -79,9 +79,9 @@ type NodeConfig struct {
 var defaultNodeConfig = &NodeConfig{
 	BootstrapNodes:        FoundationBootnodes(),
 	MaxPeers:              25,
-	EthereumEnabled:       true,
-	EthereumNetworkID:     1,
-	EthereumDatabaseCache: 16,
+	AlbaEnabled:       true,
+	AlbaNetworkID:     1,
+	AlbaDatabaseCache: 16,
 }
 
 // NewNodeConfig creates a new node option set, initialized to the default values.
@@ -152,55 +152,55 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 	debug.Memsize.Add("node", rawStack)
 
 	var genesis *core.Genesis
-	if config.EthereumGenesis != "" {
+	if config.AlbaGenesis != "" {
 		// Parse the user supplied genesis spec if not mainnet
 		genesis = new(core.Genesis)
-		if err := json.Unmarshal([]byte(config.EthereumGenesis), genesis); err != nil {
+		if err := json.Unmarshal([]byte(config.AlbaGenesis), genesis); err != nil {
 			return nil, fmt.Errorf("invalid genesis spec: %v", err)
 		}
 		// If we have the Ropsten testnet, hard code the chain configs too
-		if config.EthereumGenesis == RopstenGenesis() {
+		if config.AlbaGenesis == RopstenGenesis() {
 			genesis.Config = params.RopstenChainConfig
-			if config.EthereumNetworkID == 1 {
-				config.EthereumNetworkID = 3
+			if config.AlbaNetworkID == 1 {
+				config.AlbaNetworkID = 3
 			}
 		}
 		// If we have the Sepolia testnet, hard code the chain configs too
-		if config.EthereumGenesis == SepoliaGenesis() {
+		if config.AlbaGenesis == SepoliaGenesis() {
 			genesis.Config = params.SepoliaChainConfig
-			if config.EthereumNetworkID == 1 {
-				config.EthereumNetworkID = 11155111
+			if config.AlbaNetworkID == 1 {
+				config.AlbaNetworkID = 11155111
 			}
 		}
 		// If we have the Rinkeby testnet, hard code the chain configs too
-		if config.EthereumGenesis == RinkebyGenesis() {
+		if config.AlbaGenesis == RinkebyGenesis() {
 			genesis.Config = params.RinkebyChainConfig
-			if config.EthereumNetworkID == 1 {
-				config.EthereumNetworkID = 4
+			if config.AlbaNetworkID == 1 {
+				config.AlbaNetworkID = 4
 			}
 		}
 		// If we have the Goerli testnet, hard code the chain configs too
-		if config.EthereumGenesis == GoerliGenesis() {
+		if config.AlbaGenesis == GoerliGenesis() {
 			genesis.Config = params.GoerliChainConfig
-			if config.EthereumNetworkID == 1 {
-				config.EthereumNetworkID = 5
+			if config.AlbaNetworkID == 1 {
+				config.AlbaNetworkID = 5
 			}
 		}
 	}
-	// Register the Ethereum protocol if requested
-	if config.EthereumEnabled {
-		ethConf := ethconfig.Defaults
-		ethConf.Genesis = genesis
-		ethConf.SyncMode = downloader.LightSync
-		ethConf.NetworkId = uint64(config.EthereumNetworkID)
-		ethConf.DatabaseCache = config.EthereumDatabaseCache
+	// Register the Alba protocol if requested
+	if config.AlbaEnabled {
+		albaConf := albaconfig.Defaults
+		albaConf.Genesis = genesis
+		albaConf.SyncMode = downloader.LightSync
+		ethConf.NetworkId = uint64(config.AlbaNetworkID)
+		albaConf.DatabaseCache = config.AlbaDatabaseCache
 		lesBackend, err := les.New(rawStack, &ethConf)
 		if err != nil {
 			return nil, fmt.Errorf("ethereum init: %v", err)
 		}
 		// If netstats reporting is requested, do it
-		if config.EthereumNetStats != "" {
-			if err := ethstats.New(rawStack, lesBackend.ApiBackend, lesBackend.Engine(), config.EthereumNetStats); err != nil {
+		if config.AlbaNetStats != "" {
+			if err := albastats.New(rawStack, lesBackend.ApiBackend, lesBackend.Engine(), config.AlbaNetStats); err != nil {
 				return nil, fmt.Errorf("netstats init: %v", err)
 			}
 		}
@@ -229,12 +229,12 @@ func (n *Node) Stop() error {
 }
 
 // GetEthereumClient retrieves a client to access the Ethereum subsystem.
-func (n *Node) GetEthereumClient() (client *EthereumClient, _ error) {
+func (n *Node) GetAlbaClient() (client *AlbaClient, _ error) {
 	rpc, err := n.node.Attach()
 	if err != nil {
 		return nil, err
 	}
-	return &EthereumClient{ethclient.NewClient(rpc)}, nil
+	return &AlbaClient{ethclient.NewClient(rpc)}, nil
 }
 
 // GetNodeInfo gathers and returns a collection of metadata known about the host.
