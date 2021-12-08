@@ -29,11 +29,11 @@ import (
 	"syscall"
 
 	"github.com/dop251/goja"
-	"github.com/ethereum/go-ethereum/console/prompt"
-	"github.com/ethereum/go-ethereum/internal/jsre"
-	"github.com/ethereum/go-ethereum/internal/jsre/deps"
-	"github.com/ethereum/go-ethereum/internal/web3ext"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/pictor01/ALBA/console/prompt"
+	"github.com/pictor01/ALBA/internal/jsre"
+	"github.com/pictor01/ALBA/internal/jsre/deps"
+	"github.com/pictor01/ALBA/internal/web3ext"
+	"github.com/pictor01/ALBA/rpc"
 	"github.com/mattn/go-colorable"
 	"github.com/peterh/liner"
 )
@@ -191,7 +191,7 @@ func (c *Console) initExtensions() error {
 	if err != nil {
 		return fmt.Errorf("api modules: %v", err)
 	}
-	aliases := map[string]struct{}{"eth": {}, "personal": {}}
+	aliases := map[string]struct{}{"alba": {}, "personal": {}}
 	for api := range apis {
 		if api == "web3" {
 			continue
@@ -237,7 +237,7 @@ func (c *Console) initPersonal(vm *goja.Runtime, bridge *bridge) {
 		return
 	}
 	jeth := vm.NewObject()
-	vm.Set("jeth", jeth)
+	vm.Set("jalba", jalba)
 	jeth.Set("openWallet", personal.Get("openWallet"))
 	jeth.Set("unlockAccount", personal.Get("unlockAccount"))
 	jeth.Set("newAccount", personal.Get("newAccount"))
