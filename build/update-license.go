@@ -77,7 +77,7 @@ var (
 		"signer/rules/deps",
 
 		// skip special licenses
-		"crypto/secp256k1", // Relicensed to BSD-3 via https://github.com/ethereum/go-ethereum/pull/17225
+		"crypto/secp256k1", // Relicensed to BSD-3 via https://github.com/pictor01/ALBA/pull/17225
 	}
 
 	// paths with this prefix are licensed as GPL. all other files are LGPL.
@@ -133,12 +133,12 @@ func (i info) ShortLicense() string {
 
 func (i info) Whole(startOfSentence bool) string {
 	if i.gpl() {
-		return "go-ethereum"
+		return "palba"
 	}
 	if startOfSentence {
-		return "The go-ethereum library"
+		return "The palba library"
 	}
-	return "the go-ethereum library"
+	return "the palba library"
 }
 
 func (i info) gpl() bool {
