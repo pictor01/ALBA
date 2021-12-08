@@ -16,14 +16,14 @@
 
 // Contains all the wrappers from the params package.
 
-package geth
+package palba
 
 import (
 	"encoding/json"
 
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/params"
 )
 
 // MainnetGenesis returns the JSON spec to use for the main Ethereum network. It
