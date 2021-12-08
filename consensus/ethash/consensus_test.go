@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package ethash
+package albaash
 
 import (
 	"encoding/binary"
@@ -25,10 +25,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/math"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/params"
 )
 
 type diffTest struct {
