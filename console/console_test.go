@@ -26,15 +26,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/console/prompt"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/internal/jsre"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus/ethash"
+	"github.com/pictor01/ALBA/console/prompt"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/internal/jsre"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
 )
 
 const (
@@ -78,7 +78,7 @@ func (p *hookedPrompter) SetWordCompleter(completer prompt.WordCompleter) {}
 type tester struct {
 	workspace string
 	stack     *node.Node
-	ethereum  *eth.Ethereum
+	ethereum  *alba.Alba
 	console   *Console
 	input     *hookedPrompter
 	output    *bytes.Buffer
@@ -108,11 +108,11 @@ func newTester(t *testing.T, confOverride func(*ethconfig.Config)) *tester {
 		},
 	}
 	if confOverride != nil {
-		confOverride(ethConf)
+		confOverride(albaConf)
 	}
-	ethBackend, err := eth.New(stack, ethConf)
+	albaBackend, err := eth.New(stack, albaConf)
 	if err != nil {
-		t.Fatalf("failed to register Ethereum protocol: %v", err)
+		t.Fatalf("failed to register Alba protocol: %v", err)
 	}
 	// Start the node and assemble the JavaScript console around it
 	if err = stack.Start(); err != nil {
@@ -140,7 +140,7 @@ func newTester(t *testing.T, confOverride func(*ethconfig.Config)) *tester {
 	return &tester{
 		workspace: workspace,
 		stack:     stack,
-		ethereum:  ethBackend,
+		ethereum:  albaBackend,
 		console:   console,
 		input:     prompter,
 		output:    printer,
