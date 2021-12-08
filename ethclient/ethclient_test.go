@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package ethclient
+package albaclient
 
 import (
 	"bytes"
@@ -26,33 +26,33 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/pictor01/ALBA"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/consensus/albaash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/rawdb"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/params"
+	"github.com/pictor01/ALBA/rpc"
 )
 
 // Verify that Client implements the ethereum interfaces.
 var (
-	_ = ethereum.ChainReader(&Client{})
-	_ = ethereum.TransactionReader(&Client{})
-	_ = ethereum.ChainStateReader(&Client{})
-	_ = ethereum.ChainSyncReader(&Client{})
-	_ = ethereum.ContractCaller(&Client{})
-	_ = ethereum.GasEstimator(&Client{})
-	_ = ethereum.GasPricer(&Client{})
-	_ = ethereum.LogFilterer(&Client{})
-	_ = ethereum.PendingStateReader(&Client{})
-	// _ = ethereum.PendingStateEventer(&Client{})
-	_ = ethereum.PendingContractCaller(&Client{})
+	_ = alba.ChainReader(&Client{})
+	_ = alba.TransactionReader(&Client{})
+	_ = alba.ChainStateReader(&Client{})
+	_ = alba.ChainSyncReader(&Client{})
+	_ = alba.ContractCaller(&Client{})
+	_ = alba.GasEstimator(&Client{})
+	_ = alba.GasPricer(&Client{})
+	_ = alba.LogFilterer(&Client{})
+	_ = alba.PendingStateReader(&Client{})
+	// _ = alba.PendingStateEventer(&Client{})
+	_ = alba.PendingContractCaller(&Client{})
 )
 
 func TestToFilterArg(t *testing.T) {
@@ -66,13 +66,13 @@ func TestToFilterArg(t *testing.T) {
 
 	for _, testCase := range []struct {
 		name   string
-		input  ethereum.FilterQuery
+		input  alba.FilterQuery
 		output interface{}
 		err    error
 	}{
 		{
 			"without BlockHash",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				FromBlock: big.NewInt(1),
 				ToBlock:   big.NewInt(2),
@@ -88,7 +88,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with nil fromBlock and nil toBlock",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				Topics:    [][]common.Hash{},
 			},
@@ -102,7 +102,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with negative fromBlock and negative toBlock",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				FromBlock: big.NewInt(-1),
 				ToBlock:   big.NewInt(-1),
@@ -118,7 +118,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with blockhash",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				BlockHash: &blockHash,
 				Topics:    [][]common.Hash{},
@@ -132,7 +132,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with blockhash and from block",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				BlockHash: &blockHash,
 				FromBlock: big.NewInt(1),
@@ -143,7 +143,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with blockhash and to block",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				BlockHash: &blockHash,
 				ToBlock:   big.NewInt(1),
@@ -154,7 +154,7 @@ func TestToFilterArg(t *testing.T) {
 		},
 		{
 			"with blockhash and both from / to block",
-			ethereum.FilterQuery{
+			alba.FilterQuery{
 				Addresses: addresses,
 				BlockHash: &blockHash,
 				FromBlock: big.NewInt(1),
@@ -188,7 +188,7 @@ var (
 )
 
 var genesis = &core.Genesis{
-	Config:    params.AllEthashProtocolChanges,
+	Config:    params.AllAlbaashProtocolChanges,
 	Alloc:     core.GenesisAlloc{testAddr: {Balance: testBalance}},
 	ExtraData: []byte("test genesis"),
 	Timestamp: 9000,
@@ -220,18 +220,18 @@ func newTestBackend(t *testing.T) (*node.Node, []*types.Block) {
 	if err != nil {
 		t.Fatalf("can't create new node: %v", err)
 	}
-	// Create Ethereum Service
+	// Create Alba Service
 	config := &ethconfig.Config{Genesis: genesis}
-	config.Ethash.PowMode = ethash.ModeFake
-	ethservice, err := eth.New(n, config)
+	config.Albaash.PowMode = albaash.ModeFake
+	albaservice, err := alba.New(n, config)
 	if err != nil {
-		t.Fatalf("can't create new ethereum service: %v", err)
+		t.Fatalf("can't create new alba service: %v", err)
 	}
 	// Import the test chain.
 	if err := n.Start(); err != nil {
 		t.Fatalf("can't start test node: %v", err)
 	}
-	if _, err := ethservice.BlockChain().InsertChain(blocks[1:]); err != nil {
+	if _, err := albaservice.BlockChain().InsertChain(blocks[1:]); err != nil {
 		t.Fatalf("can't import test blocks: %v", err)
 	}
 	return n, blocks
@@ -249,7 +249,7 @@ func generateTestChain() []*types.Block {
 		}
 	}
 	gblock := genesis.ToBlock(db)
-	engine := ethash.NewFaker()
+	engine := albaash.NewFaker()
 	blocks, _ := core.GenerateChain(genesis.Config, gblock, engine, db, 2, generate)
 	blocks = append([]*types.Block{gblock}, blocks...)
 	return blocks
