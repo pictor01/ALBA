@@ -21,9 +21,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/params"
+	"github.com/pictor01/ALBA/rlp"
 )
 
 // TestCreation tests that different genesis and fork rule combinations result in
