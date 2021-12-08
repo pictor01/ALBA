@@ -7,19 +7,19 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
+	ethereum "github.com/pictor01/ALBA"
+	"github.com/pictor01/ALBA/accounts/abi"
+	"github.com/pictor01/ALBA/accounts/abi/bind"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/epictor01/ALBA/event"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
 	_ = big.NewInt
 	_ = strings.NewReader
-	_ = ethereum.NotFound
+	_ = alba.NotFound
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -60,7 +60,7 @@ type CheckpointOracle struct {
 	CheckpointOracleFilterer   // Log filterer for contract events
 }
 
-// CheckpointOracleCaller is an auto generated read-only Go binding around an Ethereum contract.
+// CheckpointOracleCaller is an auto generated read-only Go binding around an Alba contract.
 type CheckpointOracleCaller struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
@@ -83,7 +83,7 @@ type CheckpointOracleSession struct {
 	TransactOpts bind.TransactOpts // Transaction auth options to use throughout this session
 }
 
-// CheckpointOracleCallerSession is an auto generated read-only Go binding around an Ethereum contract,
+// CheckpointOracleCallerSession is an auto generated read-only Go binding around an Alba contract,
 // with pre-set call options.
 type CheckpointOracleCallerSession struct {
 	Contract *CheckpointOracleCaller // Generic contract caller binding to set the session for
@@ -102,12 +102,12 @@ type CheckpointOracleRaw struct {
 	Contract *CheckpointOracle // Generic contract binding to access the raw methods on
 }
 
-// CheckpointOracleCallerRaw is an auto generated low-level read-only Go binding around an Ethereum contract.
+// CheckpointOracleCallerRaw is an auto generated low-level read-only Go binding around an Alba contract.
 type CheckpointOracleCallerRaw struct {
 	Contract *CheckpointOracleCaller // Generic read-only contract binding to access the raw methods on
 }
 
-// CheckpointOracleTransactorRaw is an auto generated low-level write-only Go binding around an Ethereum contract.
+// CheckpointOracleTransactorRaw is an auto generated low-level write-only Go binding around an Alba contract.
 type CheckpointOracleTransactorRaw struct {
 	Contract *CheckpointOracleTransactor // Generic write-only contract binding to access the raw methods on
 }
@@ -288,7 +288,7 @@ type CheckpointOracleNewCheckpointVoteIterator struct {
 	event    string              // Event name to use for unpacking event data
 
 	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	sub  alba.Subscription // Subscription for errors, completion and termination
 	done bool                  // Whether the subscription completed delivering logs
 	fail error                 // Occurred error to stop iteration
 }
