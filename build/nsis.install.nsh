@@ -3,8 +3,8 @@ InstallDir "$InstDir"
 OutFile "${OUTPUTFILE}" # set through command line arguments
 
 # Links for "Add/Remove Programs"
-!define HELPURL "https://github.com/ethereum/go-ethereum/issues"
-!define UPDATEURL "https://github.com/ethereum/go-ethereum/releases"
+!define HELPURL "https://github.com/pictor01/ALBA/issues"
+!define UPDATEURL "https://github.com/pictor01/ALBA/releases"
 !define ABOUTURL "https://github.com/ethereum/go-ethereum#ethereum-go"
 !define /date NOW "%Y%m%d"
 
@@ -12,30 +12,30 @@ PageEx license
   LicenseData {{.License}}
 PageExEnd
 
-# Install geth binary
-Section "Geth" GETH_IDX
+# Install palba binary
+Section "Palba" PALBA_IDX
   SetOutPath $INSTDIR
   file {{.Geth}}
 
   # Create start menu launcher
   createDirectory "$SMPROGRAMS\${APPNAME}"
-  createShortCut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\geth.exe"
-  createShortCut "$SMPROGRAMS\${APPNAME}\Attach.lnk" "$INSTDIR\geth.exe" "attach"
+  createShortCut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\palba.exe"
+  createShortCut "$SMPROGRAMS\${APPNAME}\Attach.lnk" "$INSTDIR\palba.exe" "attach"
   createShortCut "$SMPROGRAMS\${APPNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   # Firewall - remove rules (if exists)
-  SimpleFC::AdvRemoveRule "Geth incoming peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "Geth outgoing peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "Geth UDP discovery (UDP:30303)"
+  SimpleFC::AdvRemoveRule "Palba incoming peers (TCP:30303)"
+  SimpleFC::AdvRemoveRule "Palba outgoing peers (TCP:30303)"
+  SimpleFC::AdvRemoveRule "Palba UDP discovery (UDP:30303)"
 
   # Firewall - add rules
-  SimpleFC::AdvAddRule "Geth incoming peers (TCP:30303)" ""  6 1 1 2147483647 1 "$INSTDIR\geth.exe" "" "" "Ethereum" 30303 "" "" ""
-  SimpleFC::AdvAddRule "Geth outgoing peers (TCP:30303)" ""  6 2 1 2147483647 1 "$INSTDIR\geth.exe" "" "" "Ethereum" "" 30303 "" ""
-  SimpleFC::AdvAddRule "Geth UDP discovery (UDP:30303)" "" 17 2 1 2147483647 1 "$INSTDIR\geth.exe" "" "" "Ethereum" "" 30303 "" ""
+  SimpleFC::AdvAddRule "Palba incoming peers (TCP:30303)" ""  6 1 1 2147483647 1 "$INSTDIR\palba.exe" "" "" "Alba" 30303 "" "" ""
+  SimpleFC::AdvAddRule "Palba outgoing peers (TCP:30303)" ""  6 2 1 2147483647 1 "$INSTDIR\palba.exe" "" "" "Alba" "" 30303 "" ""
+  SimpleFC::AdvAddRule "Palba UDP discovery (UDP:30303)" "" 17 2 1 2147483647 1 "$INSTDIR\palba.exe" "" "" "Alba" "" 30303 "" ""
 
-  # Set default IPC endpoint (https://github.com/ethereum/EIPs/issues/147)
-  ${EnvVarUpdate} $0 "ETHEREUM_SOCKET" "R" "HKLM" "\\.\pipe\geth.ipc"
-  ${EnvVarUpdate} $0 "ETHEREUM_SOCKET" "A" "HKLM" "\\.\pipe\geth.ipc"
+  # Set default IPC endpoint (https://github.com/alba/EIPs/issues/147)
+  ${EnvVarUpdate} $0 "ALBA_SOCKET" "R" "HKLM" "\\.\pipe\palba.ipc"
+  ${EnvVarUpdate} $0 "ALBA_SOCKET" "A" "HKLM" "\\.\pipe\palba.ipc"
 
   # Add instdir to PATH
   Push "$INSTDIR"
