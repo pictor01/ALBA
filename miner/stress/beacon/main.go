@@ -27,24 +27,24 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/fdlimit"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/catalyst"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/pictor01/ALBA/accounts/keystore"
+	"github.com/pictor01/ALBA/common"
+	"github.com/pictor01/ALBA/common/fdlimit"
+	"github.com/pictor01/ALBA/consensus/albaash"
+	"github.com/pictor01/ALBA/core"
+	"github.com/pictor01/ALBA/core/types"
+	"github.com/pictor01/ALBA/crypto"
+	"github.com/pictor01/ALBA/alba"
+	"github.com/pictor01/ALBA/alba/catalyst"
+	"github.com/pictor01/ALBA/alba/downloader"
+	"github.com/pictor01/ALBA/alba/albaconfig"
+	"github.com/pictor01/ALBA/les"
+	"github.com/pictor01/ALBA/log"
+	"github.com/pictor01/ALBA/miner"
+	"github.com/pictor01/ALBA/node"
+	"github.com/pictor01/ALBA/p2p"
+	"github.com/pictor01/ALBA/p2p/enode"
+	"github.com/pictor01/ALBA/params"
 )
 
 type nodetype int
@@ -52,9 +52,9 @@ type nodetype int
 const (
 	legacyMiningNode nodetype = iota
 	legacyNormalNode
-	eth2MiningNode
-	eth2NormalNode
-	eth2LightClient
+	alba2MiningNode
+	alba2NormalNode
+	alba2LightClient
 )
 
 func (typ nodetype) String() string {
@@ -63,12 +63,12 @@ func (typ nodetype) String() string {
 		return "legacyMiningNode"
 	case legacyNormalNode:
 		return "legacyNormalNode"
-	case eth2MiningNode:
-		return "eth2MiningNode"
-	case eth2NormalNode:
-		return "eth2NormalNode"
-	case eth2LightClient:
-		return "eth2LightClient"
+	case alba2MiningNode:
+		return "alba2MiningNode"
+	case alba2NormalNode:
+		return "alba2NormalNode"
+	case alba2LightClient:
+		return "alba2LightClient"
 	default:
 		return "undefined"
 	}
@@ -89,25 +89,25 @@ var (
 type ethNode struct {
 	typ        nodetype
 	api        *catalyst.ConsensusAPI
-	ethBackend *eth.Ethereum
+	albaBackend *alba.Alba
 	lesBackend *les.LightEthereum
 	stack      *node.Node
 	enode      *enode.Node
 }
 
-func newNode(typ nodetype, genesis *core.Genesis, enodes []*enode.Node) *ethNode {
+func newNode(typ nodetype, genesis *core.Genesis, enodes []*enode.Node) *albaNode {
 	var (
 		err        error
 		api        *catalyst.ConsensusAPI
 		stack      *node.Node
-		ethBackend *eth.Ethereum
+		albaBackend *alba.Alba
 		lesBackend *les.LightEthereum
 	)
 	// Start the node and wait until it's up
-	if typ == eth2LightClient {
+	if typ == alba2LightClient {
 		stack, lesBackend, api, err = makeLightNode(genesis)
 	} else {
-		stack, ethBackend, api, err = makeFullNode(genesis)
+		stack, albaBackend, api, err = makeFullNode(genesis)
 	}
 	if err != nil {
 		panic(err)
@@ -130,14 +130,14 @@ func newNode(typ nodetype, genesis *core.Genesis, enodes []*enode.Node) *ethNode
 	return &ethNode{
 		typ:        typ,
 		api:        api,
-		ethBackend: ethBackend,
+		albaBackend: albaBackend,
 		lesBackend: lesBackend,
 		stack:      stack,
 		enode:      enode,
 	}
 }
 
-func (n *ethNode) assembleBlock(parentHash common.Hash, parentTimestamp uint64) (*catalyst.ExecutableDataV1, error) {
+func (n *albaNode) assembleBlock(parentHash common.Hash, parentTimestamp uint64) (*catalyst.ExecutableDataV1, error) {
 	if n.typ != eth2MiningNode {
 		return nil, errors.New("invalid node type")
 	}
@@ -156,8 +156,8 @@ func (n *ethNode) assembleBlock(parentHash common.Hash, parentTimestamp uint64) 
 	return n.api.GetPayloadV1(*payload.PayloadID)
 }
 
-func (n *ethNode) insertBlock(eb catalyst.ExecutableDataV1) error {
-	if !eth2types(n.typ) {
+func (n *albaNode) insertBlock(eb catalyst.ExecutableDataV1) error {
+	if !alba2types(n.typ) {
 		return errors.New("invalid node type")
 	}
 	newResp, err := n.api.ExecutePayloadV1(eb)
@@ -169,8 +169,8 @@ func (n *ethNode) insertBlock(eb catalyst.ExecutableDataV1) error {
 	return nil
 }
 
-func (n *ethNode) insertBlockAndSetHead(parent *types.Header, ed catalyst.ExecutableDataV1) error {
-	if !eth2types(n.typ) {
+func (n *albaNode) insertBlockAndSetHead(parent *types.Header, ed catalyst.ExecutableDataV1) error {
+	if !alba2types(n.typ) {
 		return errors.New("invalid node type")
 	}
 	if err := n.insertBlock(ed); err != nil {
@@ -194,7 +194,7 @@ func (n *ethNode) insertBlockAndSetHead(parent *types.Header, ed catalyst.Execut
 type nodeManager struct {
 	genesis      *core.Genesis
 	genesisBlock *types.Block
-	nodes        []*ethNode
+	nodes        []*albaNode
 	enodes       []*enode.Node
 	close        chan struct{}
 }
@@ -213,7 +213,7 @@ func (mgr *nodeManager) createNode(typ nodetype) {
 	mgr.enodes = append(mgr.enodes, node.enode)
 }
 
-func (mgr *nodeManager) getNodes(typ nodetype) []*ethNode {
+func (mgr *nodeManager) getNodes(typ nodetype) []*albaNode {
 	var ret []*ethNode
 	for _, node := range mgr.nodes {
 		if node.typ == typ {
@@ -225,7 +225,7 @@ func (mgr *nodeManager) getNodes(typ nodetype) []*ethNode {
 
 func (mgr *nodeManager) startMining() {
 	for _, node := range append(mgr.getNodes(eth2MiningNode), mgr.getNodes(legacyMiningNode)...) {
-		if err := node.ethBackend.StartMining(1); err != nil {
+		if err := node.albaBackend.StartMining(1); err != nil {
 			panic(err)
 		}
 	}
@@ -242,7 +242,7 @@ func (mgr *nodeManager) run() {
 	if len(mgr.nodes) == 0 {
 		return
 	}
-	chain := mgr.nodes[0].ethBackend.BlockChain()
+	chain := mgr.nodes[0].albaBackend.BlockChain()
 	sink := make(chan core.ChainHeadEvent, 1024)
 	sub := chain.SubscribeChainHeadEvent(sink)
 	defer sub.Unsubscribe()
@@ -280,9 +280,9 @@ func (mgr *nodeManager) run() {
 		if int(distance) < finalizationDist {
 			return
 		}
-		nodes := mgr.getNodes(eth2MiningNode)
-		nodes = append(nodes, mgr.getNodes(eth2NormalNode)...)
-		nodes = append(nodes, mgr.getNodes(eth2LightClient)...)
+		nodes := mgr.getNodes(alba2MiningNode)
+		nodes = append(nodes, mgr.getNodes(alba2NormalNode)...)
+		nodes = append(nodes, mgr.getNodes(alba2LightClient)...)
 		for _, node := range append(nodes) {
 			fcState := catalyst.ForkchoiceStateV1{
 				HeadBlockHash:      oldest.Hash(),
@@ -329,9 +329,9 @@ func (mgr *nodeManager) run() {
 			}
 			block, _ := catalyst.ExecutableDataToBlock(*ed)
 
-			nodes := mgr.getNodes(eth2MiningNode)
-			nodes = append(nodes, mgr.getNodes(eth2NormalNode)...)
-			nodes = append(nodes, mgr.getNodes(eth2LightClient)...)
+			nodes := mgr.getNodes(alba2MiningNode)
+			nodes = append(nodes, mgr.getNodes(alba2NormalNode)...)
+			nodes = append(nodes, mgr.getNodes(alba2LightClient)...)
 
 			for _, node := range nodes {
 				if err := node.insertBlockAndSetHead(parentBlock.Header(), *ed); err != nil {
@@ -356,18 +356,18 @@ func main() {
 		faucets[i], _ = crypto.GenerateKey()
 	}
 	// Pre-generate the ethash mining DAG so we don't race
-	ethash.MakeDataset(1, filepath.Join(os.Getenv("HOME"), ".ethash"))
+	albaash.MakeDataset(1, filepath.Join(os.Getenv("HOME"), ".ethash"))
 
-	// Create an Ethash network based off of the Ropsten config
+	// Create an Albaash network based off of the Ropsten config
 	genesis := makeGenesis(faucets)
 	manager := newNodeManager(genesis)
 	defer manager.shutdown()
 
-	manager.createNode(eth2NormalNode)
-	manager.createNode(eth2MiningNode)
+	manager.createNode(alba2NormalNode)
+	manager.createNode(alba2MiningNode)
 	manager.createNode(legacyMiningNode)
 	manager.createNode(legacyNormalNode)
-	manager.createNode(eth2LightClient)
+	manager.createNode(alba2LightClient)
 
 	// Iterate over all the nodes and start mining
 	time.Sleep(3 * time.Second)
@@ -403,7 +403,7 @@ func main() {
 	}
 }
 
-// makeGenesis creates a custom Ethash genesis block based on some pre-defined
+// makeGenesis creates a custom Albaash genesis block based on some pre-defined
 // faucet accounts.
 func makeGenesis(faucets []*ecdsa.PrivateKey) *core.Genesis {
 	genesis := core.DefaultRopstenGenesisBlock()
@@ -424,12 +424,12 @@ func makeGenesis(faucets []*ecdsa.PrivateKey) *core.Genesis {
 	return genesis
 }
 
-func makeFullNode(genesis *core.Genesis) (*node.Node, *eth.Ethereum, *catalyst.ConsensusAPI, error) {
-	// Define the basic configurations for the Ethereum node
+func makeFullNode(genesis *core.Genesis) (*node.Node, *alba.Alba, *catalyst.ConsensusAPI, error) {
+	// Define the basic configurations for the Alba node
 	datadir, _ := ioutil.TempDir("", "")
 
 	config := &node.Config{
-		Name:    "geth",
+		Name:    "palba",
 		Version: params.Version,
 		DataDir: datadir,
 		P2P: p2p.Config{
@@ -439,7 +439,7 @@ func makeFullNode(genesis *core.Genesis) (*node.Node, *eth.Ethereum, *catalyst.C
 		},
 		UseLightweightKDF: true,
 	}
-	// Create the node and configure a full Ethereum node on it
+	// Create the node and configure a full Alba node on it
 	stack, err := node.New(config)
 	if err != nil {
 		return nil, nil, nil, err
@@ -451,8 +451,8 @@ func makeFullNode(genesis *core.Genesis) (*node.Node, *eth.Ethereum, *catalyst.C
 		DatabaseCache:   256,
 		DatabaseHandles: 256,
 		TxPool:          core.DefaultTxPoolConfig,
-		GPO:             ethconfig.Defaults.GPO,
-		Ethash:          ethconfig.Defaults.Ethash,
+		GPO:             albaconfig.Defaults.GPO,
+		Albaash:         albaconfig.Defaults.Ethash,
 		Miner: miner.Config{
 			GasFloor: genesis.GasLimit * 9 / 10,
 			GasCeil:  genesis.GasLimit * 11 / 10,
@@ -463,20 +463,20 @@ func makeFullNode(genesis *core.Genesis) (*node.Node, *eth.Ethereum, *catalyst.C
 		LightPeers:       10,
 		LightNoSyncServe: true,
 	}
-	ethBackend, err := eth.New(stack, econfig)
+	albaBackend, err := alba.New(stack, econfig)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	_, err = les.NewLesServer(stack, ethBackend, econfig)
+	_, err = les.NewLesServer(stack, albaBackend, econfig)
 	if err != nil {
 		log.Crit("Failed to create the LES server", "err", err)
 	}
 	err = stack.Start()
-	return stack, ethBackend, catalyst.NewConsensusAPI(ethBackend, nil), err
+	return stack, albaBackend, catalyst.NewConsensusAPI(ethBackend, nil), err
 }
 
 func makeLightNode(genesis *core.Genesis) (*node.Node, *les.LightEthereum, *catalyst.ConsensusAPI, error) {
-	// Define the basic configurations for the Ethereum node
+	// Define the basic configurations for the Alba node
 	datadir, _ := ioutil.TempDir("", "")
 
 	config := &node.Config{
@@ -490,12 +490,12 @@ func makeLightNode(genesis *core.Genesis) (*node.Node, *les.LightEthereum, *cata
 		},
 		UseLightweightKDF: true,
 	}
-	// Create the node and configure a full Ethereum node on it
+	// Create the node and configure a full Alba node on it
 	stack, err := node.New(config)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	lesBackend, err := les.New(stack, &ethconfig.Config{
+	lesBackend, err := les.New(stack, &albaconfig.Config{
 		Genesis:         genesis,
 		NetworkId:       genesis.Config.ChainID.Uint64(),
 		SyncMode:        downloader.LightSync,
@@ -503,7 +503,7 @@ func makeLightNode(genesis *core.Genesis) (*node.Node, *les.LightEthereum, *cata
 		DatabaseHandles: 256,
 		TxPool:          core.DefaultTxPoolConfig,
 		GPO:             ethconfig.Defaults.GPO,
-		Ethash:          ethconfig.Defaults.Ethash,
+		Albaash:          ethconfig.Defaults.Albaash,
 		LightPeers:      10,
 	})
 	if err != nil {
@@ -513,7 +513,7 @@ func makeLightNode(genesis *core.Genesis) (*node.Node, *les.LightEthereum, *cata
 	return stack, lesBackend, catalyst.NewConsensusAPI(nil, lesBackend), err
 }
 
-func eth2types(typ nodetype) bool {
+func alba2types(typ nodetype) bool {
 	if typ == eth2LightClient || typ == eth2NormalNode || typ == eth2MiningNode {
 		return true
 	}
