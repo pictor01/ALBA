@@ -16,13 +16,13 @@
 
 // Contains perverted wrappers to allow crossing over empty interfaces.
 
-package geth
+package palba
 
 import (
 	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/pictor01/ALBA/common"
 )
 
 // Interface represents a wrapped version of Go's interface{}, with the capacity
